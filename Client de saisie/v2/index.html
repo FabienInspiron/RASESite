@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>jQuery UI Autocomplete - Default functionality</title>
+  <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
+  <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+  <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+  <link rel="stylesheet" href="/resources/demos/style.css">
+  <link rel="stylesheet" href="chosen/chosen.css">
+  <link href='http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css' rel='stylesheet' type='text/css'>
+  <link href='http://fonts.googleapis.com/css?family=Roboto+Condensed' rel='stylesheet' type='text/css'>
+
+  <!-- Bootstrap -->
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+
+  <!-- Optional theme -->
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap-theme.min.css">
+
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
+  <!-- FIN Bootstrap -->
+
+  <style type="text/css">
+    html { height: 100% }
+    body { 
+      height: 100%; 
+      margin: 0; 
+      padding: 0 ; 
+      font-family: 'Roboto Condensed', sans-serif;
+      background-color: #E9ECEC;
+     }
+
+    #star_rating {
+      width: 200px;
+      margin: 20px 0px;
+    }
+
+    #star_rating span {
+      font-size: 40px;
+      color: orange;
+      cursor: pointer;
+    }
+
+    #star_rating span:hover:before {
+      content: "\2605";
+      position: absolute;
+      color: orange;
+    }
+
+    #button_submit p{
+      font-family:Arial,sans-serif;
+      font-size:1.8em;
+      width:200px;
+      height:43px;
+      padding-top:7px;
+      margin:100px 0px;
+      text-align:center;
+      background:#444;
+      background:-webkit-linear-gradient(#555,#2C2C2C);
+      background:-moz-linear-gradient(#555,#2C2C2C);
+      background:-ms-linear-gradient(#555,#2C2C2C);
+      background:-o-linear-gradient(#555,#2C2C2C);
+      background:linear-gradient(#555,#2C2C2C);
+      border-radius:8px;
+      box-shadow:0 0 5px rgba(0,0,0,0.5),0 -1px 0 rgba(255,255,255,0.4);
+      color:#E9ECEC;
+      text-shadow:0 1px 0 rgba(255,255,255,0.2);
+    }
+    #button_submit p:hover{
+      cursor:pointer;
+      color:#E9ECEC;
+      background:#555;
+      background:-webkit-linear-gradient(top,#777,#333);
+      background:-moz-linear-gradient(top,#777,#333);
+      background:-ms-linear-gradient(top,#777,#333);
+      background:-o-linear-gradient(top,#777,#333);
+      background:linear-gradient(top,#777,#333);
+    }
+    #button_submit p:active{
+      color:#E9ECEC;
+      background:#444;
+      box-shadow:1px 1px 10px black inset,0 1px 0 rgba(255,255,255,0.4);
+      background:-webkit-linear-gradient(#555,#2C2C2C);
+      background:-moz-linear-gradient(#555,#2C2C2C);
+      background:-ms-linear-gradient(#555,#2C2C2C);
+      background:-o-linear-gradient(#555,#2C2C2C);
+      background:linear-gradient(#555,#2C2C2C);
+    }
+
+    #feedback { font-size: 1em; }
+    #list_symptome .ui-selecting { background: #FECA40; }
+    #list_symptome .ui-selected { background: #F39814; color: white; }
+    #list_symptome { list-style-type: none; margin: 0; padding: 0; width: 25%; }
+    #list_symptome li { margin: 3px; padding: 0.4em; font-size: 1em; height: 18px; }
+
+    #list_elements {
+      position: absolute;
+      right: 0px;
+      top: 0px;
+      width: 30%;
+      height: 100%;
+      display: none;
+    }
+    #list_elements li,  #list_elements ol{ list-style-type: none;margin: 3px; padding: 0.4em; font-size: 1em; height: 18px; }
+    #list_elements h2 {margin: auto; text-align: center;}
+
+    #afficher_list_maladie {
+      display: inline;
+    }
+  </style>
+
+  <script>
+  $(function() {
+    var maladies = new Array;
+    var maladies_id = new Array;
+    var symtome = new Array;
+    var NB_MAX_SYMPT = 5;
+    var fill_list_mal = false;
+
+    // Recuperation des maladies
+    $.getJSON("maladies.json", function( data ) {
+      var items = [];
+      $.each( data, function(key, val ) {
+        maladies.push(val);
+        maladies_id.push(key);
+
+        $("#list_maladie_chosen").append("<option>"+val+"</option>");
+      });
+
+      $('#list_maladie_chosen').trigger("chosen:updated");
+    });
+
+    var i = 0;
+    // Recupération des symtômes
+    $.getJSON("symtomes.json", function(data) {
+      var items = [];
+      $.each( data, function(key, val ) {
+        $("#list_symtome_chosen").append("<option>"+val+"</option>");
+
+        symtome.push(val);
+        if(i < NB_MAX_SYMPT) {
+          $("#list_symptome").append("<li class='ui-widget-content'>"+val+"</li>");
+        }
+        i++;
+      });
+
+      $('#list_symtome_chosen').trigger("chosen:updated");
+    });
+
+    $("#maladies").autocomplete({
+      source: maladies
+    });
+
+    $("#symtome").autocomplete({
+      source: symtome
+    });
+
+    $("#list_symptome").selectable();
+
+    $("#add_sympt_but").click(function () {
+      var val = $("#symtome").val();
+      $("#list_symptome").append( "<li class='ui-widget-content ui-selected'>"+val+"</li>" );
+    });
+
+    $("#afficher_list_maladie").click(function() {
+      $("#list_elements").toggle();
+
+      if(!fill_list_mal)
+        for (var i = 0; i < maladies.length; i++) {
+          $("#list_elements_mal").append( "<li rel='"+maladies_id[i]+"' class='ui-widget-content ui-selected'>"+maladies[i]+"</li>" );
+          fill_list_mal = true;
+        }
+    });
+
+    $(document).on('click', '#list_elements_mal li', function() {
+        
+        return false;
+    });
+
+  });
+  </script>
+</head>
+<body>
+ <h1> Client de saisie </h1>
+ <h2>Maladie</h2>
+ <h3> Méthode 1 </h3>
+ <div class="ui-widget">
+  <label for="maladies">Maladie : </label>
+  <input id="maladies"> <div id="afficher_list_maladie">Séléctionner dans la liste ></div>
+</div>
+
+  <h3>Méthode 2</h3>
+  <select tabindex="1" id="list_maladie_chosen" data-placeholder="Choisissez la maladie" style="width:350px;" class="chosen-select" tabindex="7"></select>
+
+ <h2>Symptômes </h2> 
+
+ <h3> Méthode 1 </h3>
+  <div class="ui-widget">
+    <label for="symtome">Rechercher un symptôme : </label>
+    <input id="symtome">
+    <input id="add_sympt_but" type="button" value="Ajouter">
+  </div>
+
+  <ol id="list_symptome"></ol>
+
+<h3>Méthode 2</h3>
+  <select id="list_symtome_chosen" data-placeholder="Choisissez les symtômes" style="width:350px;" multiple class="chosen-select" tabindex="8"> </select>
+
+ <h2> Notation </h2>
+  <div id="star_rating">
+    <span>&#9734;<span>&#9734;<span>&#9734;<span>&#9734;<span>&#9734;</span></span></span></span></span>
+  </div>
+
+  <div id="button_submit"> <p>Envoyer !</p> </div>
+
+  <div id="list_elements">
+    <h2>Liste des maladies</h2>
+    <ul id="list_elements_mal"></ul>
+  </div>
+</body>
+
+  <script src="chosen/chosen.jquery.js" type="text/javascript"></script>
+  <script src="chosen/docsupport/prism.js" type="text/javascript" charset="utf-8"></script>
+  <script type="text/javascript">
+    var config = {
+      '.chosen-select'           : {},
+      '.chosen-select-deselect'  : {allow_single_deselect:true},
+      '.chosen-select-no-single' : {disable_search_threshold:10},
+      '.chosen-select-no-results': {no_results_text:'Oops, nothing found!'},
+      '.chosen-select-width'     : {width:"95%"}
+    }
+    for (var selector in config) {
+      $(selector).chosen(config[selector]);
+    }
+  </script>
+
+</html>

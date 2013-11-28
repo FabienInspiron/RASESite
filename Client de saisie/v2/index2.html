@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Client de saisie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap -->
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://code.jquery.com/jquery.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+
+    <!-- Choosen -->
+    <link rel="stylesheet" href="chosen/chosen.css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+    <script>
+  $(function() {
+    var maladies = new Array;
+    var maladies_id = new Array;
+    var symtome = new Array;
+    var NB_MAX_SYMPT = 5;
+    var fill_list_mal = false;
+
+    // Recuperation des maladies
+    $.getJSON("maladies.json", function( data ) {
+      var items = [];
+      $.each( data, function(key, val ) {
+        maladies.push(val);
+        maladies_id.push(key);
+
+        $("#list_maladie_chosen").append("<option val='"+key+"'>"+val+"</option>");
+      });
+
+      $('#list_maladie_chosen').trigger("chosen:updated");
+    });
+
+    var i = 0;
+    // Recupération des symtômes
+    $.getJSON("symtomes.json", function(data) {
+      var items = [];
+      $.each( data, function(key, val ) {
+        $("#list_symtome_chosen").append("<option>"+val+"</option>");
+
+        symtome.push(val);
+        if(i < NB_MAX_SYMPT) {
+          $("#list_symptome").append("<li class='ui-widget-content'>"+val+"</li>");
+        }
+        i++;
+      });
+
+      $('#list_symtome_chosen').trigger("chosen:updated");
+    });
+
+    $("#add_sympt_but").click(function () {
+      var val = $("#symtome").val();
+      $("#list_symptome").append( "<li class='ui-widget-content ui-selected'>"+val+"</li>" );
+    });
+
+    $("#afficher_list_maladie").click(function() {
+      $("#list_elements").toggle();
+
+      if(!fill_list_mal)
+        for (var i = 0; i < maladies.length; i++) {
+          $("#list_elements_mal").append( "<li rel='"+maladies_id[i]+"' class='ui-widget-content ui-selected'>"+maladies[i]+"</li>" );
+          fill_list_mal = true;
+        }
+    });
+
+    $("#star_rating span").click(function(){
+    	$(this).css("color", "red");
+    });
+
+  });
+  </script>
+  <style type="text/css">
+  	body{
+  		background-color: #E6E6E6;
+  	}
+
+    #star_rating {
+      width: 200px;
+      margin: auto;
+    }
+
+    #star_rating span {
+      font-size: 40px;
+      color: orange;
+      cursor: pointer;
+    }
+
+    #star_rating span:hover:before {
+      content: "\2605";
+      position: absolute;
+      color: orange;
+    }
+    </style>
+  </head>
+  <body>
+  <div style="margin:auto; margin-top:20px; vertical-align:middle; width:500px;">
+  	<div class="panel panel-primary">
+  	 <div class="panel-heading"><h1>Client de saisie</h1></div>
+  		<div class="panel-body">
+  		<!-- <div class="alert alert-success"><strong>Formulaire envoyé</strong> avec succés !</div> -->
+
+	    <!-- Saisie d'une maladie -->
+	    <div class="panel panel-default">
+	      <div class="panel-heading">Saisie d'une maladie</div>
+	        <div class="panel-body">
+	        <select tabindex="1" id="list_maladie_chosen" data-placeholder="Choisissez la maladie" style="width:350px;" class="chosen-select" tabindex="7"></select>
+	      </div>
+	    </div>
+
+	     <!-- Saisie des symtômes -->
+	    <div class="panel panel-default">
+	      <div class="panel-heading">Saisie d'une liste de symtômes</div>
+	        <div class="panel-body">
+	          <select tabindex="2" id="list_symtome_chosen" data-placeholder="Choisissez les symtômes" style="width:350px;" multiple class="chosen-select" tabindex="8"></select>
+	      </div>
+	    </div>
+
+	     <!-- Notation -->
+	    <div class="panel panel-default">
+	      <div class="panel-heading">Notation</div>
+	        <div class="panel-body">
+	         <div id="star_rating">
+	          <span>&#9734;<span>&#9734;<span>&#9734;<span>&#9734;<span>&#9734;</span></span></span></span></span>
+	        </div>
+	      </div>
+	    </div>
+
+	<center>
+	  <a href="#" class="btn btn-primary btn-lg enabled" role="button">Envoyer</a>
+	  <a href="#" class="btn btn-default btn-lg enabled" role="button">Annuler</a>
+	</center>
+
+	  </div>
+	</div>
+  </div>
+  <script src="chosen/chosen.jquery.js" type="text/javascript"></script>
+  <script src="chosen/docsupport/prism.js" type="text/javascript" charset="utf-8"></script>
+  <script type="text/javascript">
+    var config = {
+      '.chosen-select'           : {},
+      '.chosen-select-deselect'  : {allow_single_deselect:true},
+      '.chosen-select-no-single' : {disable_search_threshold:10},
+      '.chosen-select-no-results': {no_results_text:'Oops, nothing found!'},
+      '.chosen-select-width'     : {width:"95%"}
+    }
+    for (var selector in config) {
+      $(selector).chosen(config[selector]);
+    }
+  </script>
+</html>
